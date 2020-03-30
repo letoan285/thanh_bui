@@ -110,10 +110,21 @@ class BaseModel {
         // var_dump($this);die;
     }
 
-    public function update()
+    public function update($id, $data)
     {
-        $this->sql = "Update $this->table ";
-        var_dump($this->sql);die;
+        $sql_keys = '';
+        foreach($data as $key=>$value) {
+            $sql_keys .=  $key."='".$value."',";
+        }
+        $sql_keys = rtrim($sql_keys, ",");
+        $this->sql = "UPDATE  $this->table SET $sql_keys WHERE id=$id";
+        $stmt = $this->connect->prepare($this->sql);
+        try {
+            $stmt->execute();
+            return true;
+        } catch(PDOException $e){
+            var_dump($e->getMessage());die;
+        }
     }
 
 }
