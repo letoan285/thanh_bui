@@ -35,7 +35,7 @@ $products = Product::all();
                         <th>Name</th>
                         <th>Price</th>
                         <th>Category</th>
-                        <th><a class="btn btn-sm btn-success" href="/products/create">Create New</a></th>
+                        <th><a class="btn btn-sm btn-success" href="./create_product.php">Create New</a></th>
                     </tr>
                 </thead>
                 <tbody>

@@ -7,8 +7,7 @@ class BaseModel {
     protected $dbName = "thanh_database";
     public $connect;
     protected $sql = "";
-
-
+    
     public function __construct()
     {
         $this->connect = new PDO("mysql:host=$this->host; dbname=$this->dbName", $this->username, $this->password);
@@ -107,24 +106,61 @@ class BaseModel {
         } catch(PDOException $e){
             var_dump($e->getMessage());die;
         }
-        // var_dump($this);die;
     }
 
-    public function update($id, $data)
+    public function update()
     {
-        $sql_keys = '';
-        foreach($data as $key=>$value) {
-            $sql_keys .=  $key."='".$value."',";
+        $this->sql = "UPDATE $this->table SET ";
+        foreach($this->columns as $col){
+            if($this->{$col}){
+                $this->sql .= "$col = '".$this->{$col}."', ";
+            }
         }
-        $sql_keys = rtrim($sql_keys, ",");
-        $this->sql = "UPDATE  $this->table SET $sql_keys WHERE id=$id";
+        $this->sql = rtrim($this->sql, ", ");
+
+        $this->sql .= "WHERE id = $this->id";
+
         $stmt = $this->connect->prepare($this->sql);
+
         try {
             $stmt->execute();
-            return true;
-        } catch(PDOException $e){
+            return $this;
+        } catch (PDOException $e){
             var_dump($e->getMessage());die;
         }
+        
+    }
+
+    public function save()
+    {
+        $this->sql = "INSERT INTO $this->table (";
+        foreach($this->columns as $col){
+            if($this->{$col}){
+                $this->sql .= "$col, ";
+            }
+        }
+
+        $this->sql = rtrim($this->sql, ", ");
+
+        $this->sql .= ") VALUES ( ";
+
+        foreach($this->columns as $col){
+            if($this->{$col}){
+                $this->sql .= "'".$this->{$col}."', ";
+            }
+        }
+        $this->sql = rtrim($this->sql, ", ");
+        $this->sql .= ")";
+
+        $stmt=$this->connect->prepare($this->sql);
+        try {
+            $stmt->execute();
+            $this->id = $this->connect->lastInsertId();
+            return $this;
+        } catch (PDOException $e){
+            var_dump($e->getMessage());die;
+        }
+
     }
 
 }
